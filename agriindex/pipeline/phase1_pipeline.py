@@ -107,7 +107,15 @@ def store_results(
         database.insert_entities(page_id, entities, db_path=db_path)
 
     # -- contacts table --
-    contacts = context.get("contacts", [])
+    # extract_contacts() returns a dict; convert to (type, value) tuples for storage
+    contacts_data = context.get("contacts", {})
+    if isinstance(contacts_data, dict):
+        contacts = (
+            [("email", e) for e in contacts_data.get("emails", [])]
+            + [("phone", p) for p in contacts_data.get("phone_numbers", [])]
+        )
+    else:
+        contacts = contacts_data  # backward compatibility
     if contacts:
         database.insert_contacts(page_id, contacts, db_path=db_path)
 

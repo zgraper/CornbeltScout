@@ -126,7 +126,7 @@ markets:
   - supply chain
 
 # -------------------------------------------------------------------------
-# Investor / finance signals
+# Investor / finance signals (used by the rule classifier)
 # -------------------------------------------------------------------------
 investor:
   - venture capital
@@ -145,3 +145,132 @@ investor:
   - crowdfunding
   - grant funding
   - usda grant
+
+# -------------------------------------------------------------------------
+# Individual pest species (Phase 2+ expansion)
+# -------------------------------------------------------------------------
+pests:
+  - aphid
+  - rootworm
+  - corn borer
+  - armyworm
+  - japanese beetle
+  - thrips
+  - spider mite
+  - whitefly
+  - stink bug
+  - wireworm
+  - cutworm
+  - nematode
+
+# -------------------------------------------------------------------------
+# Disease organisms & syndromes
+# -------------------------------------------------------------------------
+diseases:
+  - gray leaf spot
+  - tar spot
+  - sudden death syndrome
+  - northern corn leaf blight
+  - white mold
+  - sclerotinia
+  - soybean cyst nematode
+  - fusarium
+  - pythium
+  - phytophthora
+  - anthracnose
+  - powdery mildew
+  - rust
+
+# -------------------------------------------------------------------------
+# Agronomy terminology (extended set)
+# -------------------------------------------------------------------------
+agronomy_terms:
+  - soil health
+  - soil fertility
+  - soil pH
+  - soil organic matter
+  - cation exchange capacity
+  - nitrogen
+  - phosphorus
+  - potassium
+  - micronutrient
+  - tillage
+  - no-till
+  - conservation tillage
+  - cover crop
+  - crop rotation
+  - field management
+  - precision agriculture
+  - precision ag
+  - variable rate
+  - drainage
+  - tile drainage
+  - irrigation
+  - drip irrigation
+  - pivot irrigation
+  - yield monitor
+
+# -------------------------------------------------------------------------
+# Investor / finance terminology (extended set)
+# -------------------------------------------------------------------------
+investor_terms:
+  - venture capital
+  - vc funding
+  - seed round
+  - series a
+  - series b
+  - series c
+  - investment
+  - investor
+  - startup
+  - ipo
+  - merger
+  - acquisition
+  - private equity
+  - agri-finance
+  - crowdfunding
+  - grant funding
+  - usda grant
+  - angel investor
+  - term sheet
+  - due diligence
+
+# -------------------------------------------------------------------------
+# Geography — US Corn Belt and key agricultural states / regions
+# -------------------------------------------------------------------------
+geography_terms:
+  - corn belt
+  - midwest
+  - great plains
+  - illinois
+  - iowa
+  - indiana
+  - ohio
+  - minnesota
+  - missouri
+  - michigan
+  - wisconsin
+  - nebraska
+  - kansas
+  - south dakota
+  - north dakota
+
+# -------------------------------------------------------------------------
+# Company / organisation signals
+# -------------------------------------------------------------------------
+company_signals:
+  - inc.
+  - llc
+  - ltd
+  - corp.
+  - agricultural cooperative
+  - co-op
+  - farm bureau
+  - grain elevator
+  - seed company
+  - chemical company
+  - extension service
+  - land grant university
+  - research station
+  - agribusiness
+
