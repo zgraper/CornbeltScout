@@ -148,8 +148,11 @@ def run_pipeline(
     # ------------------------------------------------------------------ #
     # 1. Search
     # ------------------------------------------------------------------ #
-    raw_urls = run_search(query, limit=limit)
-    logger.info("Search returned %d raw URLs", len(raw_urls))
+    search_records = run_search(query, limit=limit)
+    logger.info("Search returned %d result records", len(search_records))
+
+    # Extract raw URLs from the structured result dicts for the URL filter
+    raw_urls = [r["url"] for r in search_records if r.get("url")]
 
     # ------------------------------------------------------------------ #
     # 2. Filter & normalise
