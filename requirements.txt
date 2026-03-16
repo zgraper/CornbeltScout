@@ -1,0 +1,31 @@
+# AgriIndex – Python dependencies
+#
+# Core dependencies required for Phase 1.
+# Optional dependencies are listed in the [optional] section below.
+
+# HTTP requests
+requests>=2.31.0
+
+# HTML parsing (used as BeautifulSoup fallback and in contact/meta extraction)
+beautifulsoup4>=4.12.0
+lxml>=4.9.0            # faster HTML parser backend for BeautifulSoup
+
+# Readable text extraction (preferred over raw BeautifulSoup)
+trafilatura>=1.6.0
+
+# YAML config loading
+PyYAML>=6.0
+
+# DuckDuckGo search (unofficial API, no key required)
+duckduckgo-search>=3.9.0
+
+# ---------------------------------------------------------------------------
+# Optional – install for full functionality
+# ---------------------------------------------------------------------------
+
+# Named entity extraction
+# spacy>=3.7.0
+# en_core_web_sm model: python -m spacy download en_core_web_sm
+
+# llama.cpp Python bindings (alternative to CLI subprocess)
+# llama-cpp-python>=0.2.0

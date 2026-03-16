@@ -1,0 +1,38 @@
+# blocked_domains.yaml
+# ---------------------
+# Domains that AgriIndex will never crawl or index.
+#
+# Add entries in plain lowercase format (no scheme, no trailing slash).
+# Wildcards are NOT supported here — list each blocked domain explicitly.
+# The url_filters module loads this list at startup.
+
+blocked_domains:
+  # Social media / user-generated noise
+  - facebook.com
+  - twitter.com
+  - x.com
+  - instagram.com
+  - tiktok.com
+  - reddit.com
+  - pinterest.com
+  - linkedin.com
+  - youtube.com
+
+  # Generic news aggregators unlikely to contain deep ag content
+  - buzzfeed.com
+  - huffpost.com
+
+  # Ad/tracking networks
+  - doubleclick.net
+  - googleadservices.com
+  - googlesyndication.com
+
+  # Search engines themselves (avoid crawling search result pages)
+  - google.com
+  - bing.com
+  - duckduckgo.com
+  - yahoo.com
+
+  # Spam / low-quality content farms (examples — extend as needed)
+  - ezinearticles.com
+  - articlesbase.com

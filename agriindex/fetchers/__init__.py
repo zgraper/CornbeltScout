@@ -1,0 +1,1 @@
+"""AgriIndex fetchers package."""

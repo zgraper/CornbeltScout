@@ -1,0 +1,147 @@
+# keyword_sets.yaml
+# ------------------
+# Agriculture keyword dictionaries used by the keyword extractor and
+# relevance classifier.
+#
+# Each top-level key is a named keyword set.  The keyword_extractor module
+# will count hits for every set and store per-set scores in the database.
+#
+# Guidelines:
+#   • Keep terms lowercase; the extractor normalises text before matching.
+#   • Prefer specific technical terms over generic words to reduce false hits.
+#   • Add new sets here to support future topic expansions (Phase 2+).
+
+# -------------------------------------------------------------------------
+# Core Corn-Belt crops
+# -------------------------------------------------------------------------
+crops:
+  - corn
+  - maize
+  - soybeans
+  - soybean
+  - wheat
+  - sorghum
+  - oats
+  - barley
+  - alfalfa
+  - hay
+  - canola
+  - sunflower
+  - sugar beet
+  - dry bean
+  - cover crop
+  - winter wheat
+  - spring wheat
+
+# -------------------------------------------------------------------------
+# Soil & agronomy
+# -------------------------------------------------------------------------
+agronomy:
+  - soil health
+  - soil fertility
+  - nitrogen
+  - phosphorus
+  - potassium
+  - micronutrient
+  - tillage
+  - no-till
+  - conservation tillage
+  - crop rotation
+  - field management
+  - precision agriculture
+  - precision ag
+  - variable rate
+  - soil organic matter
+  - cation exchange capacity
+  - soil pH
+  - drainage
+  - tile drainage
+  - irrigation
+  - drip irrigation
+  - pivot irrigation
+
+# -------------------------------------------------------------------------
+# Pest, disease & weed management
+# -------------------------------------------------------------------------
+pest_management:
+  - herbicide
+  - pesticide
+  - insecticide
+  - fungicide
+  - weed control
+  - integrated pest management
+  - ipm
+  - aphid
+  - rootworm
+  - gray leaf spot
+  - soybean cyst nematode
+  - scn
+  - sudden death syndrome
+  - tar spot
+  - corn borer
+  - armyworm
+  - japanese beetle
+  - fusarium
+  - pythium
+
+# -------------------------------------------------------------------------
+# Ag technology & data
+# -------------------------------------------------------------------------
+ag_tech:
+  - agtech
+  - ag tech
+  - farm management software
+  - yield monitor
+  - remote sensing
+  - drone
+  - uav
+  - satellite imagery
+  - machine learning
+  - artificial intelligence
+  - ai farming
+  - digital agriculture
+  - smart farming
+  - iot
+  - sensor
+  - data analytics
+  - decision support
+
+# -------------------------------------------------------------------------
+# Markets & economics
+# -------------------------------------------------------------------------
+markets:
+  - commodity price
+  - futures
+  - grain elevator
+  - basis
+  - cash price
+  - usda
+  - crop insurance
+  - farm income
+  - net farm income
+  - farmland value
+  - land rent
+  - cash rent
+  - agricultural economics
+  - supply chain
+
+# -------------------------------------------------------------------------
+# Investor / finance signals
+# -------------------------------------------------------------------------
+investor:
+  - venture capital
+  - vc funding
+  - seed round
+  - series a
+  - series b
+  - investment
+  - investor
+  - startup
+  - ipo
+  - merger
+  - acquisition
+  - private equity
+  - agri-finance
+  - crowdfunding
+  - grant funding
+  - usda grant
