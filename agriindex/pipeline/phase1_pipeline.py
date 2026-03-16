@@ -27,7 +27,10 @@ Phase 2+ could extend this module to:
 
 from typing import Any, Dict, List, Optional
 
+import yaml
+
 from agriindex.classifiers.rule_classifier import run_rule_classifier
+from agriindex.config import settings
 from agriindex.db import database
 from agriindex.extractors.contact_extractor import extract_contacts
 from agriindex.extractors.entity_extractor import extract_entities
@@ -145,24 +148,35 @@ def run_pipeline(
     logger.info("=== Phase 1 pipeline START  query=%r  limit=%d ===", query, limit)
     database.init_db(db_path=db_path)
 
+    # Load the blocked-domain list once for this pipeline run
+    try:
+        with open(settings.BLOCKED_DOMAINS_PATH, "r", encoding="utf-8") as _fh:
+            blocked_domains: List[str] = yaml.safe_load(_fh).get("blocked_domains", [])
+    except FileNotFoundError:
+        logger.warning("blocked_domains.yaml not found; proceeding with empty block list")
+        blocked_domains = []
+
     # ------------------------------------------------------------------ #
     # 1. Search
     # ------------------------------------------------------------------ #
     search_records = run_search(query, limit=limit)
     logger.info("Search returned %d result records", len(search_records))
 
-    # Extract raw URLs from the structured result dicts for the URL filter
-    raw_urls = [r["url"] for r in search_records if r.get("url")]
-
     # ------------------------------------------------------------------ #
     # 2. Filter & normalise
     # ------------------------------------------------------------------ #
-    filtered = filter_urls(raw_urls)
+    # filter_urls accepts and returns lists of dicts; it annotates each
+    # surviving record with normalized_url, domain, and kept_reason.
+    filtered = filter_urls(search_records, blocked_domains)
     logger.info("After filtering: %d URLs to process", len(filtered))
 
     results: List[Dict[str, Any]] = []
 
-    for rank, (raw_url, canonical_url, domain) in enumerate(filtered, start=1):
+    for rank, record in enumerate(filtered, start=1):
+        raw_url: str = record["url"]
+        canonical_url: str = record["normalized_url"]
+        domain: str = record.get("domain") or ""
+
         logger.info("[%d/%d] Processing %s", rank, len(filtered), canonical_url)
         context: Dict[str, Any] = {
             "raw_url": raw_url,
