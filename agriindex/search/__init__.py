@@ -1,1 +1,1 @@
-"""AgriIndex search package."""
+"""CornScout search package."""

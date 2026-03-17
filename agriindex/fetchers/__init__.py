@@ -1,1 +1,1 @@
-"""AgriIndex fetchers package."""
+"""CornScout fetchers package."""

@@ -1,7 +1,7 @@
 """
 test_queries.py
 ---------------
-Test runner script for the AgriIndex Phase 1 pipeline.
+Test runner script for the CornScout Phase 1 pipeline.
 
 Runs a predefined list of agricultural queries through the pipeline to quickly
 build an initial dataset.  Results are stored in the configured SQLite database.

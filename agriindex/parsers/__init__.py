@@ -1,1 +1,1 @@
-"""AgriIndex parsers package."""
+"""CornScout parsers package."""

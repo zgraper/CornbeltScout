@@ -1,7 +1,7 @@
 """
 database.py
 -----------
-SQLite database layer for AgriIndex.
+SQLite database layer for CornScout.
 
 This module provides the :class:`AgriIndexDB` class which wraps a single
 SQLite connection and exposes helper methods for every write operation
@@ -53,7 +53,7 @@ _SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "schema.sql")
 
 class AgriIndexDB:
     """
-    SQLite database interface for the AgriIndex project.
+    SQLite database interface for the CornScout project.
 
     Opens (or creates) a SQLite database file, initialises the schema from
     ``schema.sql``, and exposes helper methods for all Phase 1 write

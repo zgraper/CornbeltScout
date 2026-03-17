@@ -1,7 +1,7 @@
 """
 text_utils.py
 -------------
-General-purpose text processing utilities shared across AgriIndex modules.
+General-purpose text processing utilities shared across CornScout modules.
 
 Phase 2+ could extend this module to:
 - Add language detection.

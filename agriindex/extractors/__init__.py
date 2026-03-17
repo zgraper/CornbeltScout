@@ -1,1 +1,1 @@
-"""AgriIndex extractors package."""
+"""CornScout extractors package."""

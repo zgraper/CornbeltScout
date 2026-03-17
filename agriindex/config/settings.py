@@ -1,7 +1,7 @@
 """
 settings.py
 -----------
-Central configuration for AgriIndex.
+Central configuration for CornScout.
 
 All tuneable parameters are encapsulated in :class:`Settings`, which reads
 values from environment variables (with sensible defaults) and optionally
@@ -82,7 +82,7 @@ def _bool_env(key: str, default: bool) -> bool:
 
 @dataclass
 class Settings:
-    """Centralised, type-annotated configuration for AgriIndex.
+    """Centralised, type-annotated configuration for CornScout.
 
     All attributes are populated from environment variables; the defaults
     listed here are used when a variable is absent from both the environment
@@ -144,7 +144,7 @@ class Settings:
     USER_AGENT: str = field(
         default_factory=lambda: os.environ.get(
             "AGRIINDEX_USER_AGENT",
-            "AgriIndex/0.1 (agricultural research crawler; contact: info@example.com)",
+            "CornScout/0.1 (agricultural research crawler; contact: info@example.com)",
         )
     )
     MAX_WORKERS: int = field(

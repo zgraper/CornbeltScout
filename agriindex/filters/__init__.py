@@ -1,1 +1,1 @@
-"""AgriIndex URL filters package."""
+"""CornScout URL filters package."""

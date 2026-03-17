@@ -1,1 +1,1 @@
-"""AgriIndex – agricultural web intelligence crawler."""
+"""CornScout – agricultural web intelligence crawler."""

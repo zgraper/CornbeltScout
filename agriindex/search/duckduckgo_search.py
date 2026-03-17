@@ -32,7 +32,7 @@ logger = get_logger(__name__)
 
 def normalize_search_result(raw_result: Dict, query: str, rank: int) -> Dict:
     """
-    Convert a raw DuckDuckGo result dict into the canonical AgriIndex format.
+    Convert a raw DuckDuckGo result dict into the canonical CornScout format.
 
     This function is a pure transformation – it never makes network calls – so
     it is straightforward to unit-test with synthetic inputs.

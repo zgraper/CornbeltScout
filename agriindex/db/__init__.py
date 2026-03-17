@@ -1,1 +1,1 @@
-"""AgriIndex database package."""
+"""CornScout database package."""

@@ -1,6 +1,6 @@
-# CornbeltScout – AgriIndex
+# CornbeltScout – CornScout
 
-**AgriIndex** is a modular agricultural web intelligence crawler designed to index ag-related webpages discovered through DuckDuckGo searches.
+**CornScout** is a modular agricultural web intelligence crawler designed to index ag-related webpages discovered through DuckDuckGo searches.
 
 ## Phase 1 Scope
 
@@ -48,6 +48,16 @@ agriindex/
     ├── hashing.py
     ├── logging_utils.py
     └── text_utils.py
+
+docs/
+└── phase1_checklist.md             # developer onboarding and validation checklist
+
+scripts/
+├── smoke_test.py                   # lightweight end-to-end smoke test
+└── test_queries.py                 # bulk query runner for initial dataset builds
+
+ui/
+└── streamlit_app.py                # web dashboard
 ```
 
 ## Quick Start
@@ -56,7 +66,10 @@ agriindex/
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Run a search and process results
+# 2. Run the smoke test to verify your environment
+python scripts/smoke_test.py
+
+# 3. Run a search and process results
 python agriindex/main.py --query "corn disease management" --limit 20
 
 # Optional flags
@@ -65,7 +78,14 @@ python agriindex/main.py \
     --limit 10 \
     --db my_data.db \
     --log-level DEBUG
+
+# 4. Launch the web dashboard
+streamlit run ui/streamlit_app.py
 ```
+
+See [`docs/phase1_checklist.md`](docs/phase1_checklist.md) for a full
+developer onboarding checklist, including expected output and common failure
+points.
 
 ## Configuration
 
@@ -93,6 +113,29 @@ Install spaCy model:
 ```bash
 pip install spacy
 python -m spacy download en_core_web_sm
+```
+
+## Smoke Test
+
+Run a lightweight end-to-end check before larger jobs:
+
+```bash
+python scripts/smoke_test.py
+```
+
+Expected output on success:
+
+```
+============================================================
+CornScout – Phase 1 Smoke Test
+============================================================
+  [PASS] Settings load
+  [PASS] Database init
+  [PASS] Pipeline run
+  [PASS] Records written
+
+✓  ALL 4 CHECKS PASSED
+============================================================
 ```
 
 ## Database Schema

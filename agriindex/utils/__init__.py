@@ -1,1 +1,1 @@
-"""AgriIndex utility package."""
+"""CornScout utility package."""
