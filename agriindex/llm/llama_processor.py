@@ -658,8 +658,12 @@ def run_llama_summary(text: str) -> Dict[str, Any]:
     -------
     dict
         Always contains a ``summary`` key.  When the model is available
-        the full structured result is returned; otherwise only
-        ``{"summary": ""}`` is returned to maintain backward compatibility.
+        **and** inference succeeds, the full structured result is returned
+        (with ``"summary"``, ``"topics"``, ``"keywords"``, etc.).  In all
+        other cases — model unavailable, empty input, or inference error —
+        only ``{"summary": ""}`` is returned so that callers (e.g.
+        ``phase1_pipeline``) cannot accidentally overwrite already-computed
+        fields such as classifier-derived ``"topics"`` or ``"why_relevant"``.
     """
     if not text:
         return {"summary": ""}
@@ -675,6 +679,16 @@ def run_llama_summary(text: str) -> Dict[str, Any]:
 
     page_data = {"cleaned_text": text}
     result = processor.run_summary(page_data)
+
+    # When inference failed (model loaded but produced an unusable response),
+    # ``run_summary`` returns a ``_make_fallback`` dict with ``llm_success=False``
+    # and empty list/string values for every field.  Returning that dict intact
+    # would cause ``context.update(llm_result)`` in the pipeline to overwrite
+    # classifier-derived ``"topics"`` and ``"why_relevant"`` with empty values.
+    # Guard against that by normalising failed results to the minimal dict.
+    if not result.get("llm_success", True):
+        return {"summary": result.get("summary", "")}
+
     return result
 
 
