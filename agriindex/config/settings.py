@@ -53,6 +53,11 @@ MIN_KEYWORD_HITS: int = int(os.environ.get("AGRIINDEX_MIN_KW_HITS", "2"))
 # LLM (llama.cpp)
 # ---------------------------------------------------------------------------
 
+# Set to "false" or "0" to disable all LLM processing without removing config
+LLAMA_ENABLED: bool = os.environ.get("AGRIINDEX_LLAMA_ENABLED", "true").lower() not in (
+    "false", "0", "no", "off"
+)
+
 # Absolute path to a compiled llama.cpp executable
 LLAMA_BIN: str = os.environ.get("AGRIINDEX_LLAMA_BIN", "/usr/local/bin/llama")
 
@@ -66,6 +71,15 @@ LLAMA_MAX_TOKENS: int = int(os.environ.get("AGRIINDEX_LLAMA_MAX_TOKENS", "256"))
 
 # Number of GPU layers to offload (-1 = CPU only)
 LLAMA_GPU_LAYERS: int = int(os.environ.get("AGRIINDEX_LLAMA_GPU_LAYERS", "-1"))
+
+# Context window size in tokens
+LLAMA_N_CTX: int = int(os.environ.get("AGRIINDEX_LLAMA_N_CTX", "2048"))
+
+# Number of CPU threads to use for inference
+LLAMA_N_THREADS: int = int(os.environ.get("AGRIINDEX_LLAMA_N_THREADS", "4"))
+
+# Sampling temperature (lower = more deterministic)
+LLAMA_TEMPERATURE: float = float(os.environ.get("AGRIINDEX_LLAMA_TEMPERATURE", "0.1"))
 
 # ---------------------------------------------------------------------------
 # Paths to configuration data files
