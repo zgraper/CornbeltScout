@@ -4,20 +4,16 @@ database.py
 SQLite connection management and helper functions for AgriIndex.
 
 This module provides:
-- get_connection()   – returns a configured sqlite3.Connection
-- init_db()          – creates all tables from schema.sql if they don't exist
-- insert_url()       – insert or ignore a canonical URL record
-- insert_page()      – insert a full page record
-- insert_entities()  – bulk-insert spaCy entities and page_entity links
-- insert_contacts()  – bulk-insert emails / phone numbers
-- insert_discovery() – record that a URL was found by a specific DDG query
-- url_exists()       – check whether a canonical URL is already known
-- get_url_id()       – return the PK for a canonical URL
-
-Later phases can add:
-- update_crawl_status()
-- get_stale_urls() for re-crawl scheduling
-- full-text search helpers
+- get_connection()      – returns a configured sqlite3.Connection
+- init_db()             – creates all tables from schema.sql if they don't exist
+- insert_url()          – insert or ignore a canonical URL record
+- insert_page()         – upsert a full page record (insert or update by url_id)
+- insert_entities()     – bulk-insert spaCy entities and page_entity links
+- insert_contacts()     – bulk-insert emails / phone numbers
+- insert_discovery()    – record that a URL was found by a specific DDG query
+- mark_url_status()     – update the processing status of a URL
+- url_exists()          – check whether a canonical URL is already known
+- get_url_id()          – return the PK for a canonical URL
 """
 
 import json
@@ -27,6 +23,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from agriindex.config import settings
+from agriindex.utils.logging_utils import get_logger
+
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +185,11 @@ def insert_url(
 
 def insert_page(page_data: Dict[str, Any], db_path: Optional[str] = None) -> int:
     """
-    Insert a page record into the ``pages`` table.
+    Upsert a page record into the ``pages`` table.
+
+    On repeated pipeline runs for the same URL the existing row is updated
+    rather than a new duplicate row being inserted (the ``pages`` table has
+    a UNIQUE constraint on ``url_id``).
 
     Parameters
     ----------
@@ -199,7 +202,7 @@ def insert_page(page_data: Dict[str, Any], db_path: Optional[str] = None) -> int
     Returns
     -------
     int
-        The primary key of the newly inserted row.
+        The primary key of the row (new or pre-existing).
     """
     # Serialise any dict/list values to JSON strings
     topics = page_data.get("topics")
@@ -209,11 +212,31 @@ def insert_page(page_data: Dict[str, Any], db_path: Optional[str] = None) -> int
     if isinstance(keywords, (list, dict)):
         keywords = json.dumps(keywords)
 
+    fetched_at = page_data.get("fetched_at", _now_iso())
+    params = {
+        "url_id": page_data["url_id"],
+        "fetched_at": fetched_at,
+        "http_status": page_data.get("http_status"),
+        "page_title": page_data.get("page_title"),
+        "meta_description": page_data.get("meta_description"),
+        "cleaned_text": page_data.get("cleaned_text"),
+        "word_count": page_data.get("word_count"),
+        "summary": page_data.get("summary"),
+        "topics": topics,
+        "keywords": keywords,
+        "relevance_cornbelt_ai": page_data.get("relevance_cornbelt_ai"),
+        "relevance_investor": page_data.get("relevance_investor"),
+        "page_type": page_data.get("page_type"),
+        "content_hash": page_data.get("content_hash"),
+    }
+
     conn = get_connection(db_path)
     with conn:
-        cursor = conn.execute(
+        # Insert if url_id is new; the UNIQUE(url_id) constraint silently
+        # ignores the insert when a row already exists for this URL.
+        conn.execute(
             """
-            INSERT INTO pages (
+            INSERT OR IGNORE INTO pages (
                 url_id, fetched_at, http_status,
                 page_title, meta_description, cleaned_text, word_count,
                 summary, topics, keywords,
@@ -227,24 +250,37 @@ def insert_page(page_data: Dict[str, Any], db_path: Optional[str] = None) -> int
                 :page_type, :content_hash
             )
             """,
-            {
-                "url_id": page_data["url_id"],
-                "fetched_at": page_data.get("fetched_at", _now_iso()),
-                "http_status": page_data.get("http_status"),
-                "page_title": page_data.get("page_title"),
-                "meta_description": page_data.get("meta_description"),
-                "cleaned_text": page_data.get("cleaned_text"),
-                "word_count": page_data.get("word_count"),
-                "summary": page_data.get("summary"),
-                "topics": topics,
-                "keywords": keywords,
-                "relevance_cornbelt_ai": page_data.get("relevance_cornbelt_ai"),
-                "relevance_investor": page_data.get("relevance_investor"),
-                "page_type": page_data.get("page_type"),
-                "content_hash": page_data.get("content_hash"),
-            },
+            params,
         )
-    page_id = cursor.lastrowid
+        # Always update so that re-crawls refresh the stored content.
+        conn.execute(
+            """
+            UPDATE pages SET
+                fetched_at            = :fetched_at,
+                http_status           = :http_status,
+                page_title            = :page_title,
+                meta_description      = :meta_description,
+                cleaned_text          = :cleaned_text,
+                word_count            = :word_count,
+                summary               = :summary,
+                topics                = :topics,
+                keywords              = :keywords,
+                relevance_cornbelt_ai = :relevance_cornbelt_ai,
+                relevance_investor    = :relevance_investor,
+                page_type             = :page_type,
+                content_hash          = :content_hash
+            WHERE url_id = :url_id
+            """,
+            params,
+        )
+        row = conn.execute(
+            "SELECT id FROM pages WHERE url_id = ?", (params["url_id"],)
+        ).fetchone()
+    if row is None:
+        raise RuntimeError(
+            f"insert_page: could not retrieve page row for url_id={params['url_id']}"
+        )
+    page_id = row["id"]
     conn.close()
     return page_id
 
@@ -342,6 +378,9 @@ def insert_discovery(
     """
     Record that a URL was discovered via a specific DDG query.
 
+    Uses INSERT OR IGNORE so that repeated pipeline runs for the same
+    (url_id, query) pair do not create duplicate discovery records.
+
     Parameters
     ----------
     url_id : int
@@ -356,9 +395,40 @@ def insert_discovery(
     with conn:
         conn.execute(
             """
-            INSERT INTO search_discovery (url_id, query, result_rank, discovered_at)
+            INSERT OR IGNORE INTO search_discovery (url_id, query, result_rank, discovered_at)
             VALUES (?, ?, ?, ?)
             """,
             (url_id, query, result_rank, _now_iso()),
         )
     conn.close()
+
+
+# ---------------------------------------------------------------------------
+# URL status helpers
+# ---------------------------------------------------------------------------
+
+def mark_url_status(
+    url_id: int,
+    status: str,
+    db_path: Optional[str] = None,
+) -> None:
+    """
+    Update the processing status of a URL record.
+
+    Parameters
+    ----------
+    url_id : int
+        Primary key of the ``urls`` row.
+    status : str
+        New status value.  Expected values: ``"pending"``, ``"fetched"``,
+        ``"failed"``, ``"skipped"``.
+    db_path : str, optional
+    """
+    conn = get_connection(db_path)
+    with conn:
+        conn.execute(
+            "UPDATE urls SET status = ?, last_crawled = ? WHERE id = ?",
+            (status, _now_iso(), url_id),
+        )
+    conn.close()
+    logger.debug("mark_url_status: url_id=%d  status=%r", url_id, status)

@@ -22,18 +22,22 @@ CREATE TABLE IF NOT EXISTS urls (
     first_seen     TEXT    NOT NULL,          -- ISO-8601 UTC timestamp
     last_crawled   TEXT,                      -- ISO-8601 UTC timestamp, nullable
     crawl_count    INTEGER NOT NULL DEFAULT 0,
-    is_blocked     INTEGER NOT NULL DEFAULT 0  -- 1 if domain is on block list
+    is_blocked     INTEGER NOT NULL DEFAULT 0,  -- 1 if domain is on block list
+    status         TEXT    NOT NULL DEFAULT 'pending'
+                                              -- pending | fetched | failed | skipped
 );
 
 CREATE INDEX IF NOT EXISTS idx_urls_domain        ON urls (domain);
 CREATE INDEX IF NOT EXISTS idx_urls_canonical_url ON urls (canonical_url);
+CREATE INDEX IF NOT EXISTS idx_urls_status        ON urls (status);
 
 -- ---------------------------------------------------------------------------
 -- pages
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pages (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    url_id           INTEGER NOT NULL REFERENCES urls (id) ON DELETE CASCADE,
+    url_id           INTEGER NOT NULL UNIQUE REFERENCES urls (id) ON DELETE CASCADE,
+                                       -- UNIQUE enforces one page record per URL
     fetched_at       TEXT    NOT NULL,  -- ISO-8601 UTC timestamp
     http_status      INTEGER,
     page_title       TEXT,
@@ -93,7 +97,8 @@ CREATE TABLE IF NOT EXISTS search_discovery (
     url_id       INTEGER NOT NULL REFERENCES urls (id) ON DELETE CASCADE,
     query        TEXT    NOT NULL,   -- the DDG query string that found this URL
     result_rank  INTEGER,            -- position in the search result list (1-based)
-    discovered_at TEXT   NOT NULL    -- ISO-8601 UTC timestamp
+    discovered_at TEXT   NOT NULL,   -- ISO-8601 UTC timestamp
+    UNIQUE (url_id, query)           -- prevent duplicate discovery records
 );
 
 CREATE INDEX IF NOT EXISTS idx_search_discovery_url_id ON search_discovery (url_id);

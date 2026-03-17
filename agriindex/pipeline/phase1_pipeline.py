@@ -60,14 +60,17 @@ def store_results(
     Persist the fully enriched page context to the database.
 
     This function is the final step of the Phase 1 pipeline.  It writes to
-    the following tables: ``urls``, ``pages``, ``entities``, ``contacts``,
+    the following tables: ``pages``, ``entities``, ``contacts``,
     ``search_discovery``.
+
+    The ``urls`` row must already exist (inserted earlier in the pipeline);
+    ``context["url_id"]`` is used directly.
 
     Parameters
     ----------
     context : dict
-        Accumulated pipeline context for a single URL.  Must contain at
-        least ``raw_url``, ``canonical_url``, and ``domain``.
+        Accumulated pipeline context for a single URL.  Must contain
+        ``url_id``, ``raw_url``, and ``canonical_url``.
     query : str
         The DDG search query that led to this URL.
     result_rank : int, optional
@@ -75,14 +78,12 @@ def store_results(
     db_path : str, optional
         Override the default database path from ``settings``.
     """
-    raw_url = context["raw_url"]
     canonical_url = context["canonical_url"]
-    domain = context["domain"]
 
-    # -- urls table --
-    url_id = database.insert_url(raw_url, canonical_url, domain, db_path=db_path)
+    # url_id is set by the pipeline before calling store_results
+    url_id: int = context["url_id"]
 
-    # -- pages table --
+    # -- pages table (upsert) --
     page_record = {
         "url_id": url_id,
         "fetched_at": context.get("fetched_at"),
@@ -192,66 +193,114 @@ def run_pipeline(
             "domain": domain,
         }
 
-        # ---------------------------------------------------------------- #
-        # 3. Fetch
-        # ---------------------------------------------------------------- #
-        fetch_result = fetch_page(canonical_url)
-        context.update({
-            "status_code": fetch_result["status_code"],
-            "fetched_at": fetch_result["fetched_at"],
-            "html": fetch_result["html"],
-            "fetch_error": fetch_result["error"],
-        })
-
-        if fetch_result["error"] or not fetch_result["html"]:
-            logger.warning("Skipping %s: %s", canonical_url, fetch_result["error"])
+        # Register the URL in the database immediately so that status can be
+        # updated regardless of whether later steps succeed or fail.
+        try:
+            url_id: int = database.insert_url(
+                raw_url, canonical_url, domain, db_path=db_path
+            )
+            context["url_id"] = url_id
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "Failed to register URL in database — skipping %s: %s",
+                canonical_url, exc,
+            )
+            context["pipeline_error"] = str(exc)
             results.append(context)
             continue
 
-        # ---------------------------------------------------------------- #
-        # 4. Parse HTML
-        # ---------------------------------------------------------------- #
-        parsed = parse_html(fetch_result["html"], url=canonical_url)
-        context.update(parsed)
+        try:
+            # ---------------------------------------------------------------- #
+            # 3. Fetch
+            # ---------------------------------------------------------------- #
+            fetch_result = fetch_page(canonical_url)
+            context.update({
+                "status_code": fetch_result["status_code"],
+                "fetched_at": fetch_result["fetched_at"],
+                "html": fetch_result["html"],
+                "fetch_error": fetch_result["error"],
+            })
 
-        cleaned_text = parsed.get("cleaned_text", "")
-        context["content_hash"] = sha256_text(cleaned_text)
+            if fetch_result["error"] or not fetch_result["html"]:
+                logger.warning("Fetch failed for %s: %s", canonical_url, fetch_result["error"])
+                database.mark_url_status(url_id, "failed", db_path=db_path)
+                results.append(context)
+                continue
 
-        # ---------------------------------------------------------------- #
-        # 5. Extract contacts
-        # ---------------------------------------------------------------- #
-        context["contacts"] = extract_contacts(cleaned_text)
+            # ---------------------------------------------------------------- #
+            # 4. Parse HTML
+            # ---------------------------------------------------------------- #
+            parsed = parse_html(fetch_result["html"], url=canonical_url)
+            context.update(parsed)
 
-        # ---------------------------------------------------------------- #
-        # 6. Extract keywords
-        # ---------------------------------------------------------------- #
-        context["keyword_hits"] = extract_keywords(cleaned_text)
+            cleaned_text = parsed.get("cleaned_text", "")
+            context["content_hash"] = sha256_text(cleaned_text)
 
-        # ---------------------------------------------------------------- #
-        # 7. Classify
-        # ---------------------------------------------------------------- #
-        classification = run_rule_classifier(
-            canonical_url,
-            context["keyword_hits"],
-            page_data=parsed,
-        )
-        context.update(classification)
+            # ---------------------------------------------------------------- #
+            # 5. Extract contacts
+            # ---------------------------------------------------------------- #
+            try:
+                context["contacts"] = extract_contacts(cleaned_text)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Contact extraction failed for %s: %s", canonical_url, exc)
+                context["contacts"] = {}
 
-        # ---------------------------------------------------------------- #
-        # 8. LLM summary
-        # ---------------------------------------------------------------- #
-        llm_result = run_llama_summary(cleaned_text)
-        context.update(llm_result)
+            # ---------------------------------------------------------------- #
+            # 6. Extract keywords
+            # ---------------------------------------------------------------- #
+            try:
+                context["keyword_hits"] = extract_keywords(cleaned_text)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Keyword extraction failed for %s: %s", canonical_url, exc)
+                context["keyword_hits"] = {}
 
-        # ---------------------------------------------------------------- #
-        # 9. Entity extraction (optional — requires spaCy)
-        # ---------------------------------------------------------------- #
-        context["entities"] = extract_entities(cleaned_text)
+            # ---------------------------------------------------------------- #
+            # 7. Classify
+            # ---------------------------------------------------------------- #
+            try:
+                classification = run_rule_classifier(
+                    canonical_url,
+                    context["keyword_hits"],
+                    page_data=parsed,
+                )
+                context.update(classification)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Classification failed for %s: %s", canonical_url, exc)
 
-        # ---------------------------------------------------------------- #
-        # 10. Store
-        # ---------------------------------------------------------------- #
-        store_results(context, query=query, result_rank=rank, db_path=db_path)
+            # ---------------------------------------------------------------- #
+            # 8. LLM summary
+            # ---------------------------------------------------------------- #
+            try:
+                llm_result = run_llama_summary(cleaned_text)
+                context.update(llm_result)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("LLM summary failed for %s: %s", canonical_url, exc)
+
+            # ---------------------------------------------------------------- #
+            # 9. Entity extraction (optional — requires spaCy)
+            # ---------------------------------------------------------------- #
+            try:
+                context["entities"] = extract_entities(cleaned_text)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Entity extraction failed for %s: %s", canonical_url, exc)
+                context["entities"] = []
+
+            # ---------------------------------------------------------------- #
+            # 10. Store
+            # ---------------------------------------------------------------- #
+            store_results(context, query=query, result_rank=rank, db_path=db_path)
+            database.mark_url_status(url_id, "fetched", db_path=db_path)
+
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "Unhandled error processing %s: %s",
+                canonical_url, exc, exc_info=True,
+            )
+            context["pipeline_error"] = str(exc)
+            try:
+                database.mark_url_status(url_id, "failed", db_path=db_path)
+            except Exception:  # noqa: BLE001
+                pass
 
         results.append(context)
 

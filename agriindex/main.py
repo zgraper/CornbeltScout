@@ -21,8 +21,9 @@ import argparse
 import os
 import sys
 
-# Ensure the agriindex package is importable when running from the repo root
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Ensure the repo root (parent of the agriindex package) is importable
+# when running this file directly: `python agriindex/main.py`
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def parse_args(argv=None) -> argparse.Namespace:
