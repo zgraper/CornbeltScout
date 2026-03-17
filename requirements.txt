@@ -26,7 +26,10 @@ PyYAML>=6.0
 python-dotenv>=1.0.0
 
 # DuckDuckGo search (unofficial API, no key required)
-duckduckgo-search>=3.9.0
+ddgs>=0.1.0
+
+# Fallback web scraping
+selenium>=4.10.0
 
 # ---------------------------------------------------------------------------
 # Optional – install for full functionality

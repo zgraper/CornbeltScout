@@ -17,22 +17,114 @@ blocked_domains:
   - pinterest.com
   - linkedin.com
   - youtube.com
+  - tumblr.com
+  - snapchat.com
+  - quora.com
+  - discord.com
+  - twitch.tv
+  - vimeo.com
+  - whatsapp.com
 
-  # Generic news aggregators unlikely to contain deep ag content
+  # Generic news aggregators & tabloids
   - buzzfeed.com
   - huffpost.com
+  - yahoo.com
+  - msn.com
+  - aol.com
+  - dailymail.co.uk
+  - vice.com
+  - vox.com
+
+  # Ecommerce / General Retail (noise)
+  - amazon.com
+  - ebay.com
+  - etsy.com
+  - walmart.com
+  - target.com
+  - alibaba.com
+  - wayfair.com
 
   # Ad/tracking networks
   - doubleclick.net
   - googleadservices.com
   - googlesyndication.com
+  - adroll.com
+  - rubiconproject.com
+  - criteo.com
+  - outbrain.com
+  - taboola.com
 
-  # Search engines themselves (avoid crawling search result pages)
+  # Search engines & portals
   - google.com
   - bing.com
   - duckduckgo.com
-  - yahoo.com
+  - baidu.com
+  - yandex.com
+  - ask.com
+  - aol.com
+  - myway.com
 
-  # Spam / low-quality content farms (examples — extend as needed)
+  # Spam / low-quality content farms
   - ezinearticles.com
   - articlesbase.com
+  - ehow.com
+  - hubpages.com
+  - buzzle.com
+  - squidoo.com
+  - associatedcontent.com
+  - ezinemark.com
+
+  # Encyclopedias / Dictionaries (often retrieved but rarely news/intel)
+  - wikipedia.org
+  - wikimedia.org
+  - wiktionary.org
+  - dictionary.com
+  - thesaurus.com
+  - merriam-webster.com
+  - britannica.com
+
+  # Image & Stock Photo libraries
+  - shutterstock.com
+  - gettyimages.com
+  - unsplash.com
+  - pixabay.com
+  - pexels.com
+  - flickr.com
+  - adobe.com
+
+  # General Recipe / Consumer Food sites (often show up for crop terms)
+  - foodnetwork.com
+  - allrecipes.com
+  - epicurious.com
+  - delish.com
+  - bonappetit.com
+  - thekitchn.com
+  - tasteofhome.com
+  - seriouseats.com
+  - cookinglight.com
+  - myrecipes.com
+  - simplyrecipes.com
+  - sallysbakingaddiction.com
+
+  # Non-ag mapping/travel
+  - maps.google.com
+  - tripadvisor.com
+  - expedia.com
+  - yelp.com
+  - booking.com
+
+  # URL Shorteners (should be resolved, but in case they appear as domain roots)
+  - bit.ly
+  - t.co
+  - goo.gl
+  - ow.ly
+  - tinyurl.com
+  - is.gd
+  - buff.ly
+
+  # Large File Hosting / Downloads
+  - dropbox.com
+  - wetransfer.com
+  - mega.nz
+  - mediafire.com
+  - drive.google.com

@@ -3,22 +3,20 @@ duckduckgo_search.py
 --------------------
 Run DuckDuckGo searches and return structured result records.
 
-Phase 1 uses the ``duckduckgo_search`` PyPI package which wraps DDG's
-unofficial API without requiring an API key.
+Phase 1 initially used the ``duckduckgo_search`` PyPI package, which was
+later renamed to ``ddgs``. This module supports both for backwards
+compatibility, and includes a fallback to a Selenium-based search if the
+API package fails or returns zero results.
 
 Phase 2+ could extend this module to:
 - Support additional search engines (Bing, Google CSE, etc.)
 - Implement pagination to retrieve more than one "page" of results
 - Cache recent queries to avoid redundant network calls
-
-Swap point: replace ``_fetch_ddg_results`` with a different backend
-(e.g. Bing, Google CSE) while keeping ``run_search`` and
-``normalize_search_result`` unchanged.
 """
 
 import time
 from datetime import datetime, timezone
-from typing import Dict, List, Set
+from typing import Dict, List
 
 from agriindex.config import settings
 from agriindex.utils.logging_utils import get_logger
@@ -40,9 +38,9 @@ def normalize_search_result(raw_result: Dict, query: str, rank: int) -> Dict:
     Parameters
     ----------
     raw_result : dict
-        A single result dict as returned by the ``duckduckgo_search`` package.
+        A single result dict as returned by the search providers.
         Expected keys: ``href`` (or ``url``), ``title``, ``body`` (or
-        ``snippet``).  Missing keys are tolerated and produce empty strings.
+        ``snippet``). Missing keys are tolerated and produce empty strings.
     query : str
         The original search query that produced this result.
     rank : int
@@ -67,9 +65,23 @@ def normalize_search_result(raw_result: Dict, query: str, rank: int) -> Dict:
         ``discovered_at``
             ISO-8601 UTC timestamp string recording when the result was seen.
     """
-    url = raw_result.get("href") or raw_result.get("url", "")
+    if not isinstance(raw_result, dict):
+        logger.warning("Normalizer rejected non-dict result: %r", raw_result)
+        return {}
+
+    url = raw_result.get("href") or raw_result.get("url") or ""
     title = raw_result.get("title", "")
-    snippet = raw_result.get("body") or raw_result.get("snippet", "")
+    snippet = raw_result.get("body") or raw_result.get("snippet") or ""
+    
+    # Defensive casting
+    url = str(url).strip()
+    title = str(title).strip()
+    snippet = str(snippet).strip()
+
+    if not url:
+        logger.warning("Normalizer rejected result with missing or empty URL: %r", raw_result)
+        return {}
+
     discovered_at = datetime.now(tz=timezone.utc).isoformat()
 
     return {
@@ -83,59 +95,16 @@ def normalize_search_result(raw_result: Dict, query: str, rank: int) -> Dict:
 
 
 # ---------------------------------------------------------------------------
-# Backend: DuckDuckGo  (swap this function to change search provider)
-# ---------------------------------------------------------------------------
-
-def _fetch_ddg_results(query: str, limit: int) -> List[Dict]:
-    """
-    Fetch raw results from DuckDuckGo via the ``duckduckgo_search`` package.
-
-    This private function isolates all DDG-specific logic so that a different
-    search backend can be plugged in by replacing only this function.
-
-    Parameters
-    ----------
-    query : str
-        Search query string.
-    limit : int
-        Maximum number of results to request from DDG.
-
-    Returns
-    -------
-    list of dict
-        Raw result dicts as returned by ``DDGS.text()``.  Returns an empty
-        list if the package is not installed or if the request fails.
-    """
-    # -- SWAP POINT: replace the block below with a different search backend --
-    try:
-        from duckduckgo_search import DDGS  # type: ignore[import]
-    except ImportError:
-        logger.warning(
-            "duckduckgo_search package not installed. "
-            "Returning empty result list.  "
-            "Install with: pip install duckduckgo-search"
-        )
-        return []
-
-    raw_results: List[Dict] = []
-    try:
-        with DDGS() as ddgs:
-            for result in ddgs.text(query, max_results=limit):
-                raw_results.append(result)
-    except Exception as exc:  # noqa: BLE001
-        logger.error("DDG search request failed: %s", exc)
-    # -- end of swap point ---------------------------------------------------
-
-    return raw_results
-
-
-# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
 def run_search(query: str, limit: int = settings.DEFAULT_SEARCH_LIMIT) -> List[Dict]:
     """
     Execute a DuckDuckGo web search and return structured result records.
+
+    This function coordinates search providers. It first tries the primary
+    `ddgs` package. If that fails or returns zero results, it falls back
+    to a Selenium-based scraper.
 
     Each result is normalised into a consistent dictionary format shared across
     all search backends.  Exact-duplicate URLs are removed while the first
@@ -180,33 +149,35 @@ def run_search(query: str, limit: int = settings.DEFAULT_SEARCH_LIMIT) -> List[D
     """
     logger.info("DDG search: query=%r  limit=%d", query, limit)
 
-    raw_results = _fetch_ddg_results(query, limit)
-    logger.debug("DDG backend returned %d raw results", len(raw_results))
+    # 1. Try DDGS primary provider
+    try:
+        from agriindex.search.providers.ddgs_provider import fetch_ddgs_results
+        results = fetch_ddgs_results(query, limit)
+        if results:
+            logger.info("DDG primary provider (ddgs) succeeded. Returned %d results.", len(results))
+            time.sleep(settings.DDG_SLEEP_SECONDS)
+            return results
+        else:
+            logger.warning("DDG primary provider (ddgs) returned 0 results. Proceeding to fallback.")
+    except Exception as exc:
+        logger.error("DDG primary provider (ddgs) failed with exception: %s. Proceeding to fallback.", exc)
 
-    results: List[Dict] = []
-    seen_urls: Set[str] = set()
-    rank = 1
+    # 2. Try Selenium fallback provider
+    try:
+        from agriindex.search.providers.selenium_provider import fetch_selenium_results
+        logger.info("Starting Selenium fallback provider...")
+        results = fetch_selenium_results(query, limit)
+        if results:
+            logger.info("DDG fallback provider (Selenium) succeeded. Returned %d results.", len(results))
+            time.sleep(settings.DDG_SLEEP_SECONDS)
+            return results
+        else:
+            logger.warning("DDG fallback provider (Selenium) returned 0 results.")
+    except Exception as exc:
+        logger.error("DDG fallback provider (Selenium) failed with exception: %s", exc)
 
-    for raw_index, raw in enumerate(raw_results, start=1):
-        record = normalize_search_result(raw, query=query, rank=rank)
-        url = record["url"]
-
-        if not url:
-            logger.debug("Skipping result with empty URL (raw position %d)", raw_index)
-            continue
-
-        # Deduplicate exact duplicate URLs; first occurrence wins
-        if url in seen_urls:
-            logger.debug("Duplicate URL skipped (raw position %d): %s", raw_index, url)
-            continue
-
-        seen_urls.add(url)
-        results.append(record)
-        rank += 1
-
-    logger.info("run_search returning %d results for query=%r", len(results), query)
-    time.sleep(settings.DDG_SLEEP_SECONDS)
-    return results
+    logger.error("All search providers failed or returned 0 results for query=%r", query)
+    return []
 
 
 # ---------------------------------------------------------------------------
@@ -215,7 +186,9 @@ def run_search(query: str, limit: int = settings.DEFAULT_SEARCH_LIMIT) -> List[D
 
 if __name__ == "__main__":
     import json
+    import logging
 
+    logging.basicConfig(level=logging.INFO)
     test_query = "corn disease management"
     print(f"Running test search: {test_query!r}\n")
     records = run_search(test_query, limit=5)

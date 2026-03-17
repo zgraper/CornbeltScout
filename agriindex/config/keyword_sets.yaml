@@ -12,7 +12,7 @@
 #   • Add new sets here to support future topic expansions (Phase 2+).
 
 # -------------------------------------------------------------------------
-# Core Corn-Belt crops
+# Core Corn-Belt crops & other regional staples
 # -------------------------------------------------------------------------
 crops:
   - corn
@@ -28,95 +28,160 @@ crops:
   - canola
   - sunflower
   - sugar beet
+  - sugarbeet
   - dry bean
   - cover crop
   - winter wheat
   - spring wheat
+  - rye
+  - flax
+  - millet
+  - cotton
+  - sweet corn
+  - popcorn
+  - pulse crops
+  - field peas
+  - lentils
 
 # -------------------------------------------------------------------------
-# Soil & agronomy
+# Soil, Agronomy & Farming Practices
 # -------------------------------------------------------------------------
 agronomy:
   - soil health
   - soil fertility
   - nitrogen
+  - anhydrous ammonia
+  - urea
   - phosphorus
   - potassium
+  - potash
   - micronutrient
+  - fertilizer
+  - biologicals
+  - biostimulant
   - tillage
   - no-till
+  - strip-till
+  - minimum tillage
   - conservation tillage
   - crop rotation
   - field management
   - precision agriculture
   - precision ag
   - variable rate
+  - variable rate technology
+  - vrt
   - soil organic matter
   - cation exchange capacity
-  - soil pH
+  - soil ph
+  - liming
+  - soil sampling
+  - soil compaction
   - drainage
   - tile drainage
+  - pattern tile
   - irrigation
   - drip irrigation
   - pivot irrigation
+  - center pivot
+  - water management
+  - cover cropping
+  - regenerative agriculture
+  - carbon sequestration
 
 # -------------------------------------------------------------------------
-# Pest, disease & weed management
+# Pest, Disease, & Weed Management (General & Active Ingredients)
 # -------------------------------------------------------------------------
 pest_management:
   - herbicide
   - pesticide
   - insecticide
   - fungicide
+  - nematicide
   - weed control
   - integrated pest management
   - ipm
-  - aphid
-  - rootworm
-  - gray leaf spot
-  - soybean cyst nematode
-  - scn
-  - sudden death syndrome
-  - tar spot
-  - corn borer
-  - armyworm
-  - japanese beetle
-  - fusarium
-  - pythium
+  - pre-emergence
+  - post-emergence
+  - burndown
+  - residual herbicide
+  - weed resistance
+  - mode of action
+  - dicamba
+  - glyphosate
+  - glufosinate
+  - 2,4-d
+  - atrazine
+  - mesotrione
+  - azoxystrobin
+  - pyraclostrobin
+  - seed treatment
+  - seed coating
+  - crop protection
+  - biological control
+  - biopesticide
+  - drift management
+  - tank mix
+  - adjuvant
+  - surfactant
 
 # -------------------------------------------------------------------------
-# Ag technology & data
+# Ag technology, Machinery & Data
 # -------------------------------------------------------------------------
 ag_tech:
   - agtech
   - ag tech
   - farm management software
+  - fms
   - yield monitor
+  - yield mapping
   - remote sensing
   - drone
   - uav
   - satellite imagery
+  - ndvi
   - machine learning
   - artificial intelligence
   - ai farming
   - digital agriculture
+  - digital ag
   - smart farming
   - iot
   - sensor
+  - soil sensor
   - data analytics
   - decision support
+  - rtk
+  - gps guidance
+  - auto-steer
+  - autonomous tractor
+  - planter
+  - combine
+  - harvester
+  - sprayer
+  - down force
+  - section control
+  - telematics
 
 # -------------------------------------------------------------------------
-# Markets & economics
+# Markets, Economics & Policy
 # -------------------------------------------------------------------------
 markets:
   - commodity price
   - futures
+  - options
+  - cbot
+  - cme
   - grain elevator
   - basis
   - cash price
+  - spot price
   - usda
+  - nass
+  - fsa
   - crop insurance
+  - rma
+  - farm bill
   - farm income
   - net farm income
   - farmland value
@@ -124,96 +189,19 @@ markets:
   - cash rent
   - agricultural economics
   - supply chain
+  - export market
+  - tariff
+  - grain storage
+  - grain bins
+  - marketing year
+  - carryout
+  - ending stocks
+  - yield estimate
 
 # -------------------------------------------------------------------------
 # Investor / finance signals (used by the rule classifier)
 # -------------------------------------------------------------------------
 investor:
-  - venture capital
-  - vc funding
-  - seed round
-  - series a
-  - series b
-  - investment
-  - investor
-  - startup
-  - ipo
-  - merger
-  - acquisition
-  - private equity
-  - agri-finance
-  - crowdfunding
-  - grant funding
-  - usda grant
-
-# -------------------------------------------------------------------------
-# Individual pest species (Phase 2+ expansion)
-# -------------------------------------------------------------------------
-pests:
-  - aphid
-  - rootworm
-  - corn borer
-  - armyworm
-  - japanese beetle
-  - thrips
-  - spider mite
-  - whitefly
-  - stink bug
-  - wireworm
-  - cutworm
-  - nematode
-
-# -------------------------------------------------------------------------
-# Disease organisms & syndromes
-# -------------------------------------------------------------------------
-diseases:
-  - gray leaf spot
-  - tar spot
-  - sudden death syndrome
-  - northern corn leaf blight
-  - white mold
-  - sclerotinia
-  - soybean cyst nematode
-  - fusarium
-  - pythium
-  - phytophthora
-  - anthracnose
-  - powdery mildew
-  - rust
-
-# -------------------------------------------------------------------------
-# Agronomy terminology (extended set)
-# -------------------------------------------------------------------------
-agronomy_terms:
-  - soil health
-  - soil fertility
-  - soil pH
-  - soil organic matter
-  - cation exchange capacity
-  - nitrogen
-  - phosphorus
-  - potassium
-  - micronutrient
-  - tillage
-  - no-till
-  - conservation tillage
-  - cover crop
-  - crop rotation
-  - field management
-  - precision agriculture
-  - precision ag
-  - variable rate
-  - drainage
-  - tile drainage
-  - irrigation
-  - drip irrigation
-  - pivot irrigation
-  - yield monitor
-
-# -------------------------------------------------------------------------
-# Investor / finance terminology (extended set)
-# -------------------------------------------------------------------------
-investor_terms:
   - venture capital
   - vc funding
   - seed round
@@ -228,12 +216,135 @@ investor_terms:
   - acquisition
   - private equity
   - agri-finance
+  - agtech investment
   - crowdfunding
   - grant funding
   - usda grant
   - angel investor
   - term sheet
   - due diligence
+  - pitch deck
+  - capitalization
+
+# -------------------------------------------------------------------------
+# Specific Weeds
+# -------------------------------------------------------------------------
+weeds:
+  - waterhemp
+  - palmer amaranth
+  - marestail
+  - giant ragweed
+  - common ragweed
+  - kochia
+  - foxtail
+  - cocklebur
+  - lambsquarters
+  - pigweed
+  - morningglory
+  - velvetleaf
+  - johnsongrass
+  - bindweed
+  - shattercane
+  - ryegrass
+
+# -------------------------------------------------------------------------
+# Specific Pests / Insects
+# -------------------------------------------------------------------------
+pests:
+  - aphid
+  - soybean aphid
+  - rootworm
+  - corn rootworm
+  - crw
+  - corn borer
+  - european corn borer
+  - armyworm
+  - fall armyworm
+  - japanese beetle
+  - thrips
+  - spider mite
+  - two-spotted spider mite
+  - whitefly
+  - stink bug
+  - brown marmorated stink bug
+  - wireworm
+  - cutworm
+  - black cutworm
+  - nematode
+  - soybean cyst nematode
+  - scn
+  - bean leaf beetle
+  - corn earworm
+  - western bean cutworm
+  - seedcorn maggot
+  - white grub
+  - grasshopper
+  - corn leaf aphid
+  - grape colaspis
+  - true armyworm
+
+# -------------------------------------------------------------------------
+# Disease organisms & syndromes
+# -------------------------------------------------------------------------
+diseases:
+  - gray leaf spot
+  - gls
+  - tar spot
+  - sudden death syndrome
+  - sds
+  - northern corn leaf blight
+  - nclb
+  - southern rust
+  - white mold
+  - sclerotinia
+  - fusarium
+  - fusarium head blight
+  - pythium
+  - phytophthora
+  - anthracnose
+  - powdery mildew
+  - rust
+  - goss's wilt
+  - gibberella
+  - diplodia
+  - rhizoctonia
+  - crown rot
+  - stalk rot
+  - ear rot
+  - smut
+  - common smut
+  - head smut
+  - frogeye leaf spot
+  - brown stem rot
+  - cercospora
+  - downy mildew
+  - septoria
+  - root rot
+
+# -------------------------------------------------------------------------
+# Livestock / Livestock Integration
+# -------------------------------------------------------------------------
+livestock:
+  - cattle
+  - beef
+  - dairy
+  - swine
+  - hogs
+  - pigs
+  - poultry
+  - poultry barn
+  - chicken
+  - broiler
+  - turkey
+  - sheep
+  - feedlot
+  - pasture
+  - grazing
+  - manure
+  - manure management
+  - forage
+  - silage
+  - feed ratio
 
 # -------------------------------------------------------------------------
 # Geography — US Corn Belt and key agricultural states / regions
@@ -254,6 +365,8 @@ geography_terms:
   - kansas
   - south dakota
   - north dakota
+  - central illinois
+  - central iowa
 
 # -------------------------------------------------------------------------
 # Company / organisation signals
@@ -269,8 +382,13 @@ company_signals:
   - grain elevator
   - seed company
   - chemical company
+  - equipment manufacturer
   - extension service
   - land grant university
   - research station
   - agribusiness
-
+  - ag retailer
+  - crop consultant
+  - agronomist
+  - cca
+  - certified crop advisor
