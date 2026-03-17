@@ -364,7 +364,6 @@ if __name__ == "__main__":
     from agriindex.config import settings  # noqa: PLC0415
 
     # Load the default blocked-domain list for the demo
-    import yaml  # local import; yaml is only needed for this demo block
     try:
         with open(settings.BLOCKED_DOMAINS_PATH, "r", encoding="utf-8") as _fh:
             _blocked: List[str] = yaml.safe_load(_fh).get("blocked_domains", [])
