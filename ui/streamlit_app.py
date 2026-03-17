@@ -222,11 +222,18 @@ def _summarise_results(results: List[Dict[str, Any]]) -> Dict[str, int]:
     failed = sum(1 for r in results if r.get("fetch_error"))
     processed = sum(1 for r in results if r.get("cleaned_text"))
     skipped = discovered - failed - processed
+    if skipped < 0:
+        logging.getLogger(__name__).warning(
+            "Unexpected negative skipped count (%d); clamping to 0. "
+            "discovered=%d, failed=%d, processed=%d",
+            skipped, discovered, failed, processed,
+        )
+        skipped = 0
     return {
         "discovered": discovered,
         "processed": processed,
         "failed": failed,
-        "skipped": max(skipped, 0),
+        "skipped": skipped,
     }
 
 
@@ -281,7 +288,11 @@ def _render_query_runner() -> Optional[List[Dict[str, Any]]]:
                 return results
             except Exception as exc:  # noqa: BLE001
                 progress_bar.progress(100, text="Error ✗")
-                status_area.error(f"Pipeline error: {exc}")
+                status_area.error(
+                    f"Pipeline error: {str(exc)}\n\n"
+                    "Check the Log Output section below for details, or verify that "
+                    "your search query is valid and the database path is writable."
+                )
                 return []
 
     return None
@@ -377,7 +388,7 @@ def _render_recent_pages_tab() -> None:
         with tabs[4]:
             text = details.get("cleaned_text") or ""
             preview = text[:2000] + ("…" if len(text) > 2000 else "")
-            st.text_area("cleaned_text (first 2 000 chars)", preview, height=300)
+            st.text_area("cleaned_text (first 2,000 chars)", preview, height=300)
 
 
 def _render_log_section() -> None:
