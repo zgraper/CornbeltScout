@@ -22,6 +22,9 @@ trafilatura>=1.6.0
 # YAML config loading
 PyYAML>=6.0
 
+# .env file loading for Settings
+python-dotenv>=1.0.0
+
 # DuckDuckGo search (unofficial API, no key required)
 duckduckgo-search>=3.9.0
 
