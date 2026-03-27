@@ -1,4 +1,4 @@
-# AgriIndex – Python dependencies
+# CornScout – Python dependencies
 #
 # Core dependencies required for Phase 1.
 # Optional dependencies are listed in the [optional] section below.

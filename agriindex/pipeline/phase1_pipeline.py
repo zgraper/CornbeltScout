@@ -1,7 +1,7 @@
 """
 phase1_pipeline.py
 ------------------
-Orchestrates the Phase 1 AgriIndex processing flow.
+Orchestrates the Phase 1 CornScout processing flow.
 
 Pipeline order
 --------------

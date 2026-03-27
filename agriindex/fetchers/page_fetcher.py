@@ -280,7 +280,7 @@ if __name__ == "__main__":
     _TEST_URL = "https://cropwatch.unl.edu/"
 
     print("=" * 70)
-    print(f"AgriIndex page_fetcher demo — fetching: {_TEST_URL}")
+    print(f"CornScout page_fetcher demo — fetching: {_TEST_URL}")
     print("=" * 70)
 
     _result = fetch_page(_TEST_URL)

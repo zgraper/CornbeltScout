@@ -1,1 +1,1 @@
-"""AgriIndex classifiers package."""
+"""CornScout classifiers package."""

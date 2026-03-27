@@ -1,7 +1,7 @@
 """
 database.py
 -----------
-SQLite connection management and helper functions for AgriIndex.
+SQLite connection management and helper functions for CornScout.
 
 This module provides:
 - get_connection()      – returns a configured sqlite3.Connection
@@ -48,7 +48,7 @@ def _now_iso() -> str:
 
 def get_connection(db_path: Optional[str] = None) -> sqlite3.Connection:
     """
-    Open (or create) the AgriIndex SQLite database and return a connection.
+    Open (or create) the CornScout SQLite database and return a connection.
 
     The connection is configured with:
     - WAL journal mode for better concurrent read performance

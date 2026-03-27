@@ -1,7 +1,7 @@
 """
 url_filters.py
 --------------
-URL normalisation, deduplication, and domain-level filtering for AgriIndex.
+URL normalisation, deduplication, and domain-level filtering for CornScout.
 
 Responsibilities
 ----------------
@@ -389,7 +389,7 @@ if __name__ == "__main__":
     ]
 
     print("=" * 70)
-    print("AgriIndex URL filter demo")
+    print("CornScout URL filter demo")
     print("=" * 70)
     kept = filter_urls(_sample_results, _blocked)
     kept_raw_urls = {r["url"] for r in kept}

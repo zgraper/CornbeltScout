@@ -1,7 +1,7 @@
 """
 logging_utils.py
 ----------------
-Centralised logging configuration for AgriIndex.
+Centralised logging configuration for CornScout.
 
 All modules obtain their logger via ``get_logger(__name__)`` so that the
 log level and output format are controlled from a single place.

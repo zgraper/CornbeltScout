@@ -1,1 +1,1 @@
-"""AgriIndex pipeline package."""
+"""CornScout pipeline package."""

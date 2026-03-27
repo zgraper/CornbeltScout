@@ -1,6 +1,6 @@
 -- schema.sql
 -- ----------
--- AgriIndex SQLite database schema.
+-- CornScout SQLite database schema.
 --
 -- Tables
 -- ------

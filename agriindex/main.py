@@ -1,7 +1,7 @@
 """
 main.py
 -------
-AgriIndex command-line entrypoint.
+CornScout command-line entrypoint.
 
 Usage
 -----
@@ -29,9 +29,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 def parse_args(argv=None) -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        prog="agriindex",
+        prog="cornscout",
         description=(
-            "AgriIndex Phase 1 – discover and index agricultural web pages "
+            "CornScout Phase 1 – discover and index agricultural web pages "
             "via DuckDuckGo searches."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -70,7 +70,7 @@ Examples:
 
 def main(argv=None) -> int:
     """
-    Main entrypoint for the AgriIndex CLI.
+    Main entrypoint for the CornScout CLI.
 
     Returns
     -------
@@ -90,7 +90,7 @@ def main(argv=None) -> int:
 
     logger = get_logger("agriindex.main")
     logger.info(
-        "Starting AgriIndex  query=%r  limit=%d  db=%s",
+        "Starting CornScout  query=%r  limit=%d  db=%s",
         args.query,
         args.limit,
         args.db or "agriindex.db",

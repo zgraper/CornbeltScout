@@ -1,1 +1,1 @@
-"""AgriIndex LLM integration package."""
+"""CornScout LLM integration package."""

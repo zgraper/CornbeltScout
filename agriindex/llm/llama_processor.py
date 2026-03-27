@@ -3,7 +3,7 @@ llama_processor.py
 ------------------
 Generate compact structured summaries using a local llama.cpp model.
 
-AgriIndex Phase 1 uses cheap rule-based extraction first, then optionally
+CornScout Phase 1 uses cheap rule-based extraction first, then optionally
 runs a small local model through llama.cpp to produce a short summary and
 lightweight structured metadata.  This module is designed to be reliable,
 conservative, and easy to disable if no local model is available.

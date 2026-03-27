@@ -1,7 +1,7 @@
 """
 streamlit_app.py
 ----------------
-Streamlit control panel for the AgriIndex Web Intelligence Crawler.
+Streamlit control panel for the CornScout Web Intelligence Crawler.
 
 Sections
 --------
@@ -428,7 +428,7 @@ def _render_entity_explorer_tab() -> None:
 
 def main() -> None:
     st.set_page_config(
-        page_title="AgriIndex Crawler",
+        page_title="CornScout Crawler",
         page_icon="🌽",
         layout="wide",
     )
@@ -438,9 +438,9 @@ def main() -> None:
     # -----------------------------------------------------------------------
     # 1. Title
     # -----------------------------------------------------------------------
-    st.title("🌽 AgriIndex Web Intelligence Crawler")
+    st.title("🌽 CornScout Web Intelligence Crawler")
     st.markdown(
-        "AgriIndex discovers agricultural webpages using DuckDuckGo searches, "
+        "CornScout discovers agricultural webpages using DuckDuckGo searches, "
         "fetches and parses page content, extracts structured metadata "
         "(keywords, entities, contacts, relevance scores), and stores results "
         "in a local SQLite database."

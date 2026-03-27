@@ -1,1 +1,1 @@
-"""AgriIndex configuration package."""
+"""CornScout configuration package."""
